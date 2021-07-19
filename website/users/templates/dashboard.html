@@ -3,7 +3,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-Hello, {{ user.username|default:'Guest' }}!
+Hello, {{ user.username|default:'Guest' }}!<br><br>
 
 <div>
     {% if user.is_authenticated %}
@@ -12,4 +12,6 @@ Hello, {{ user.username|default:'Guest' }}!
         <a href="{% url 'login' %}">Login</a>
     {% endif %}
 </div>
+
+
 {% endblock %}

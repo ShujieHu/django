@@ -22,3 +22,8 @@ def register(request):
             user = form.save()
             login(request, user)
             return redirect(reverse("dashboard"))
+
+
+def run_model(request):
+    print("in run_model")
+    return render(request, "run_model.html")

@@ -1,0 +1,15 @@
+<!--users/templates/run_model.html-->
+
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Please choose the country to run SIR model</h2>
+
+<div class="dropdown">
+    <form action="/model" method="post">
+        <label for="country">Country</label>
+        <input id="countryName" type="text" name="countryName" value="{{ country_name }}">
+        <input type="submit" value="Submit">
+    </form>
+</div>
+{% endblock %}
