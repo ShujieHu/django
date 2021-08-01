@@ -32,8 +32,6 @@ def register(request):
 
 
 def run_model(request):
-    print("in run_model")
-
     # this should be POST request
     if request.method == 'POST':
         form = CountryForm(request.POST)
@@ -55,10 +53,22 @@ def run_model(request):
             # print('##### Output2 is #####', output)
             if err is not None:
                 print('Error is', err)
+            # lookup the folder da for analysis_world.html file, if it exists render it
+
             print("Done processing")
+            # When the operation is done, redirect to other page
+            return redirect('/redirect_report')
+            # return redirect('http://google.com')
+
         else:
             print("form is not valid")
 
     else:
         form = CountryForm()
     return render(request, 'run_model.html', {'form': form})
+    # return render(request, 'analysis_world.html')
+
+
+def redirect_report(request):
+    # return render('http://www.google.com')
+    return render(request, 'analysis_world.html')
