@@ -5,9 +5,6 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from users.forms import CustomUserCreationForm
 import requests
-import time
-from rest_framework import status
-from rest_framework.response import Response
 import subprocess
 import os
 from .forms import CountryForm
@@ -34,31 +31,34 @@ def register(request):
 def run_model(request):
     # this should be POST request
     if request.method == 'POST':
+        args = {'country': None}
         form = CountryForm(request.POST)
         # first check if it is valid
         if form.is_valid():
             # process the form
             country = form['country'].value()
-            print('country is', country)
-            firstArg = "NB_ARGS=" + country
-            bashCmd = ['/Users/shujie/Documents/CPT_HU/Semester5/CISC695/project/app4/venv/bin/jupyter', 'nbconvert', '--to', 'html',
-                       'da/analysis_world.ipynb', '--execute']
+            # First, we need to make sure that this input is valid or contained in the original dataset
+            url = 'https://github.com/CSSEGISandData/COVID-19/blob/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv'
+            resp = requests.get(url)
+            country = ',' + country + ','
+            if country in resp:
+                bashCmd = ['/Users/shujie/Documents/CPT_HU/Semester5/CISC695/project/app4/venv/bin/jupyter', 'nbconvert',
+                           '--allow-errors' '--to', 'html',
+                           'da/analysis_world.ipynb', '--execute']
 
-            process = subprocess.Popen(
-                bashCmd, stdout=subprocess.PIPE, env={'NB_ARGS': country})
-            output, err = process.communicate()
-            # print('Output is', output)
-            # process = subprocess.Popen(['pwd'], stdout=subprocess. PIPE)
-            # output, err = process.communicate()
-            # print('##### Output2 is #####', output)
-            if err is not None:
-                print('Error is', err)
-            # lookup the folder da for analysis_world.html file, if it exists render it
+                process = subprocess.Popen(
+                    bashCmd, stdout=subprocess.PIPE, env={'NB_ARGS': country})
+                _, err = process.communicate()
 
-            print("Done processing")
-            # When the operation is done, redirect to other page
-            return redirect('/redirect_report')
-            # return redirect('http://google.com')
+                if err is not None:
+                    print('Error is', err)
+                print("Done processing")
+                # When the operation is done, redirect to other page
+                return redirect('/redirect_report')
+            else:
+                print(f'country {country} is not in')
+                args['country'] = country
+                render(request, 'run_model.html', {'form': form}, args)
 
         else:
             print("form is not valid")
@@ -66,7 +66,6 @@ def run_model(request):
     else:
         form = CountryForm()
     return render(request, 'run_model.html', {'form': form})
-    # return render(request, 'analysis_world.html')
 
 
 def redirect_report(request):
