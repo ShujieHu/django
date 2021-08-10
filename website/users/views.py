@@ -40,10 +40,10 @@ def run_model(request):
             # First, we need to make sure that this input is valid or contained in the original dataset
             url = 'https://github.com/CSSEGISandData/COVID-19/blob/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv'
             resp = requests.get(url)
-            country = ',' + country + ','
-            if country in resp:
+            countryWithComa = ',' + country + ','
+            if countryWithComa in resp.text:
                 bashCmd = ['/Users/shujie/Documents/CPT_HU/Semester5/CISC695/project/app4/venv/bin/jupyter', 'nbconvert',
-                           '--allow-errors' '--to', 'html',
+                           '--allow-errors', '--to', 'html',
                            'da/analysis_world.ipynb', '--execute']
 
                 process = subprocess.Popen(
@@ -58,7 +58,7 @@ def run_model(request):
             else:
                 print(f'country {country} is not in')
                 args['country'] = country
-                render(request, 'run_model.html', {'form': form}, args)
+                render(request, 'run_model.html', {'form': form})
 
         else:
             print("form is not valid")
