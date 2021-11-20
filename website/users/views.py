@@ -8,6 +8,9 @@ import requests
 import subprocess
 import os
 from .forms import CountryForm
+import pandas as pd
+from django.template.response import TemplateResponse
+
 
 
 def dashboard(request):
@@ -28,7 +31,7 @@ def register(request):
             return redirect(reverse("dashboard"))
 
 
-def run_model(request):
+def run_model(request, template_name='run_model.html'):
     # this should be POST request
     if request.method == 'POST':
         args = {'country': None}
@@ -41,9 +44,13 @@ def run_model(request):
             url1 = 'https://github.com/CSSEGISandData/COVID-19/blob/master/csse_covid_19_data/'
             url2 = 'csse_covid_19_time_series/time_series_covid19_confirmed_global.csv'
             url = url1 + url2
-            resp = requests.get(url)
-            countryWithComa = ',' + country + ','
-            if countryWithComa in resp.text:
+            url = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv'
+            # resp = requests.get(url)
+            # countryWithComa = ',' + country + ','
+            data = pd.read_csv(url,sep=",")
+            countries = data['Country/Region'].unique()
+
+            if country in countries:
                 bashCmd = ['/Users/shujie/opt/anaconda3/bin/jupyter',
                            'nbconvert', '--allow-errors', '--to', 'html',
                            'da/analysis_world.ipynb', '--execute']
@@ -58,7 +65,8 @@ def run_model(request):
             else:
                 print(f'country {country} is not in')
                 args['country'] = country
-                render(request, 'run_model.html', {'form': form})
+                # render(request, 'run_model.html', {'form': form})
+                return TemplateResponse(request, template_name, args)
 
         else:
             print("form is not valid")
